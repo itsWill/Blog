@@ -1,0 +1,38 @@
+// Place all the styles related to the welcome controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.article-title {
+  margin-bottom: 0px;
+}
+
+.article-title {
+  a {
+    color: #000;
+    text-decoration: none;
+    text-shadow: 1px 1px 2px #555;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.timeago {
+  font-size: 90%;
+  color: #555;
+}
+
+.article-description {
+  margin-bottom: 20px;
+}
+
+.avatar {
+  border-radius: 15px;
+  margin-right: 10px;
+}
+
+.about {
+  display: inline-block;
+}
+
