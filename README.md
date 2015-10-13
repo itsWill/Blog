@@ -1,6 +1,6 @@
 ## Blog
 
-This is the code for the blog at [My blog here](localhost:3000)
+This is the code for the [blog](http://grpm.ca)
 
 The articles are included as part of the source code of the blog and are dynamically loaed into the blog.
 

@@ -31,9 +31,9 @@ module ApplicationHelper
       prettify:    true
     }
 
-    renderer = HTML.new(options)
-    markdown = Redcarpet::Markdown.new(renderer, extensions)
+    @renderer ||= HTML.new(options)
+    @markdown ||= Redcarpet::Markdown.new(@renderer, extensions)
 
-    markdown.render(text).html_safe
+    @markdown.render(text).html_safe
   end
 end

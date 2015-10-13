@@ -1,5 +1,6 @@
 <h3 class="article-title"><%= link_to article.title, article_path(article.title) %></h3>
 <time class="timeago" datetime="<%= article.date.xmlschema %>">
   <%=time_ago_in_words article.date %>
+  <%= " (Edited: #{time_ago_in_words article.edited})" unless article.edited.nil? %>
 </time>
 <p class="article-description"><%= article.description %></p>

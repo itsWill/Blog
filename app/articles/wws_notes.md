@@ -1,19 +1,19 @@
 title: Notes on Working With TCP Sockets
 date: 2015-10-12
-description: Notes taken while reading Working  With TCP Sockets by Jessie Storimer
+description: Notes taken while reading Working  With TCP Sockets by Jesse Storimer
 
 
 The book is available at: [Working with TCP Sockets](http://www.jstorimer.com/products/working-with-tcp-sockets)
 
 ## Preface
 
-I chose this book after seeing an engineering talk by Jessie at Shopify, the place where I interned during summer. I had an itch to right a webserver and got the book [TCP / IP Sockets in C](http://cs.baylor.edu/~donahoo/practical/CSockets/), however I felt like I spent most of the time wrestling with the C programming rather than the concepts. Jessie's book hit the right balance between theory and practice and I was able to immediately get started on exploring Ruby's elegant socket API.
+I chose this book after seeing an engineering talk by Jesse at Shopify, the place where I interned during summer. I had an itch to write a webserver and got the book [TCP / IP Sockets in C](http://cs.baylor.edu/~donahoo/practical/CSockets/), however I felt like I spent most of the time wrestling with the C programming rather than the concepts. Jesse's book hit the right balance between theory and practice and I was able to immediately get started exploring Ruby's elegant socket API.
 
-The book shines with it's descriptions of the architecture patterns. They're clear, concise, and the links to the open source projects that implement the patterns provide a neat insight into how these are applied in real life.
+The book shines with it's descriptions of the networkig architecture patterns. They're clear, concise, and the links to the open source projects that implement the patterns provide a neat insight into how these are applied in real life.
 
 The the first part focuses on introducing networking concepts and the socket API, while the second part applies the theory and explores different networking patterns through implementing a subset of a FTP server.
 
-The book would benefit from more detailed explanations of the networking patterns, so the video that one can purchase as an expansion of the book is a welcome addition.
+The book would benefit from more practical implementations of the networking patterns, so the video that one can purchase as an expansion of the book is a welcome addition.
 
 Overall this is a solid &#9733; &#9733; &#9733; &#9733; book. Would highly recommend it to the intermediate ruby programmer with little to no knowledge of networking.
 
@@ -669,7 +669,7 @@ connection.write(payload)
 We use the a fixed-width integer so that any integer is packed into the same number of bytes.
 
 
-_**Time Outs**_
+#### _**Time Outs**_
 
 We can use `IO.select` to control timeouts.
 
@@ -761,7 +761,7 @@ In the above example since we use a hostname as opposed to a direct ip address a
 
 The 'resolv' has its own API that allows the GIL to be released when DNS lookups take too long. The 'resolv-replace' library will monkey patch the `Socket` classes to use resolve, in a multithreaded environment these libraries are a big plus.
 
-_**SSL Sockets**_
+#### _**SSL Sockets**_
 
 SSL sockets provide secure data exchange by using public key cryptography. SSL socket communication happens on port 443 by default. Both the receiver and sender socket will be doing SSL communication. In Ruby SSL sockets using the 'openssl' librabry.
 
@@ -855,7 +855,7 @@ ssl_socket.read
 ```
 If a client tries to connect with a regular TCP socket the server will crash with a `OpenSSL::SSL::SSL::Error`.
 
-_**Urgent Data**_
+#### _**Urgent Data**_
 
 The data stream of a TCP socket can be thought of as a queue where packets are sent in order and arrive in order. It's possible however to push urgent data (also called out of band data) to the front of the queue. This is done with the `Socket.send` method which is without any extra arguments besides the message to send defaults to behaving exactly like  `write`. If we pass in the `Socket::MSG_OOB` flag (OOB stands for Out of Bound) we tell the socket to put the data at the front of the queue.
 
@@ -1050,7 +1050,7 @@ server.run
 
 The main advantages of the serial pattern are it's simplicity and the efficiency of resources since there is only one connection to be maintained.
 
-#### _*Process Per Connection**_
+#### _**Process Per Connection**_
 
 In this pattern we `fork` a new process for every incoming connection. That process then deals with the processing of that connection.
 
@@ -1291,7 +1291,7 @@ With this pattern the forking occurs when the server starts as opposed to a per 
 The memory consumption remains a big disadvantage since child processes are a complete copy.
 
 
-### _**Thread Pool**_
+#### _**Thread Pool**_
 
 The thread pool pattern is similar to the preforking pattern but instead of using processes we use threads.
 
@@ -1368,10 +1368,10 @@ server = FTP::ThreadPool.new(4481)
 server.run
 ```
 
-This pattern is very similiar to the pre forking pattern but notice the concurrency number is higher since threads are lighter wait. The MRI GIL however will mitigate some of the gain in using threads.
+This pattern is very similiar to the pre forking pattern but notice the concurrency number is higher since threads are lighter weight. The MRI GIL however will mitigate some of the gain in using threads.
 
 
-_**Evented (Reactor)**_
+#### _**Evented (Reactor)**_
 
 The evented pattern is single process and single threaded yet affords levels of concurrency similar to the previous patterns. A connection multiplexer (aka Reactor core) monitors active connections and dispatches the relevant code for an event. An event is a stage in a connections lifecyle: accept, read, write, close.
 
@@ -1493,4 +1493,4 @@ server = FTP::Evented.new(4481)
 server.run
 ```
 
-The main advantage of this pattern is that it can handle many more concurrent connections than you could using the preforking or thread pool pattern. The main disadvantage is that you can't block the reactor so if you use a third party library that does blocking IO you negate of the concurrency advantages.
+The main advantage of this pattern is that it can handle many more concurrent connections than you could using the preforking or thread pool pattern. The main disadvantage is that you can't block the reactor so if you use a third party library that does blocking IO you negate the concurrency advantages.

@@ -16,6 +16,7 @@ class ApplicationController < ActionController::Base
       article = OpenStruct.new YAML.load(meta)
 
       article.date = Time.parse article.date.to_s
+      article.edited = Time.parse article.edited.to_s unless article.edited.nil?
       article.content = content
 
       articles << article

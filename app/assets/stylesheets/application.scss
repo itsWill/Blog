@@ -18,7 +18,16 @@
 
 body {
   font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
-  font-size: 1.7em;
+  font-size: 1.5em;
+  font-weight: 500;
+  color: #262A2F;
+  background-color: #f9f9f9;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6{
+  line-height: 1.5;
+  color: #000;
 }
 
 pre {
@@ -27,6 +36,12 @@ pre {
   code {
     font-size: 1.1em;
   }
+}
+
+
+p {
+  margin-top: 0em;
+  margin-bottom: 1.5em;
 }
 
 
@@ -76,3 +91,5 @@ pre code{
   word-wrap: normal;
   white-space: pre;
 }
+
+

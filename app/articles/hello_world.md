@@ -1,5 +1,6 @@
 title: Hello World!
 date:  2015-10-12
+edited: 2016-05-03
 description: The first post. I give a quick overview of how the blog was implemented, the resources I used, and the process of deploying it.
 
 This is the first post of my first blog. It makes sense then that the post be about the blog.
@@ -48,31 +49,31 @@ Rendering the markdown in the articles was easily done thanks to [redcarpet](htt
 
 ``` ruby
 class HTML < Redcarpet::Render::HTML
-    include Rouge::Plugins::Redcarpet
-  end
+  include Rouge::Plugins::Redcarpet
+end
 
-  def markdown(text)
-    extensions = {
-      no_intra_emphasis:   true,
-      tables:              true,
-      fenced_code_blocks:  true,
-      space_after_headers: true,
-      superscript:         true,
-      footnotes:           true,
-      strikethrough:       true,
-      disabled_indented_code_blocks: true
-    }
+def markdown(text)
+  extensions = {
+    no_intra_emphasis:   true,
+    tables:              true,
+    fenced_code_blocks:  true,
+    space_after_headers: true,
+    superscript:         true,
+    footnotes:           true,
+    strikethrough:       true,
+    disabled_indented_code_blocks: true
+  }
 
-    options = {
-      filter_html: true,
-      prettify:    true
-    }
+  options = {
+    filter_html: true,
+    prettify:    true
+  }
 
-    renderer = HTML.new(options)
-    markdown = Redcarpet::Markdown.new(renderer, extensions)
+  renderer = HTML.new(options)
+  markdown = Redcarpet::Markdown.new(renderer, extensions)
 
-    markdown.render(text).html_safe
-  end
+  markdown.render(text).html_safe
+end
 ```
 
 We just need to call the `markdown` helper in the views. The theme for syntax highlighting is set in the `rouge.css.erb` file, the default themes that come with rouge can be found in `rouge/lib/rouge/themes/`.
@@ -89,4 +90,8 @@ As a quick workaround I've created a `secrets.yml` file with the hardcoded secre
 
 Finally after deploying to DigitalOcean I bought a domain and set it to point at my droplet's IP address following this [tutorial](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-host-name-with-digitalocean).
 
-And this is how my blog came to be.
+And this is how my blog came to be. You can find the source code [here](https://github.com/itsWill/Blog)
+
+##### Edit:
+
+To manage the environment variables we decided to use the [dot-env](https://github.com/bkeepers/dotenv) library. As the blog grows in features and services keeping track of the secret tokens and url's is easily manageble by storig them in a `.env` file. To use it we simply include the `dotenv-rails` gem and then create our `.env` file with the environment variables under the shared directory of the production server. We then link the shared file trough capistrano and deploy.
