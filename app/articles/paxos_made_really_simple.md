@@ -72,3 +72,5 @@ Consider the case of one proposer and one acceptor. To choose a value the accept
 > A proposer sends a proposed value to a set of acceptors. An acceptor may accept the proposed value. The value is chosen when a large enough set of acceptors have accepted it ... a large enough set consits of any majority of the agents.
 
 As long as an acceptor can only accept one value then any two majorities picked from the set of acceptors will have a acceptor in common, this follows from the pigeon hole principle.
+
+![Majority of Acceptors](https://github.com/itsWill/Blog/blob/master/app/articles/images/majority.png?raw=true)
