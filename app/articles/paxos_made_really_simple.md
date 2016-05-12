@@ -73,4 +73,9 @@ Consider the case of one proposer and one acceptor. To choose a value the accept
 
 As long as an acceptor can only accept one value then any two majorities picked from the set of acceptors will have a acceptor in common, this follows from the pigeon hole principle.
 
-![Majority of Acceptors](https://github.com/itsWill/Blog/blob/master/app/articles/images/majority.png?raw=true)
+<center><img src="https://github.com/itsWill/Blog/blob/master/app/articles/images/majority.png?raw=true" width="450" height="350"></center>
+
+> In the absense of failurre or message loss, we want a value to be chosen even if only one value is proposed by a single propose. This suggests the requirement:
+P1. An acceptor must accept the first proposal that it receives.
+
+Consider the case where different values are proposed by different proposers all around the same time to all the acceptors for the first time. Due to messages delays or message loss there could be a situation where every acceptor has gotten a first value that is different from all the others leading to a situation where all acceptors have accepted different values but no value has been accepted by a majority.
