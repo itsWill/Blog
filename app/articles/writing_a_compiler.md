@@ -22,9 +22,9 @@ The real value of this article will be in the discussion about the compilation i
 
 We will be developing the compiler using TDD and building a test suite right along the compiler, this will allow you to have more confidence when you extend the compiler that it's still working as inteded.
 
-Oh and finally I'm moving to a new place and need to decorate the walls. I figured I would write the oldest algorithm euclid's gcd algorithm in our new language and print its ast and generated code as some type of programmer compiler-nerd art.
+Oh and finally I'm moving to a new place and need to decorate the walls. I figured I would write the oldest algorithm euclid's gcd algorithm in our new language and print its ast and generated code to frame as some type of programmer compiler-nerd art.
 
-The full code for the compiler can be found [here]()
+The full code for the compiler can be found [here](https://github.com/itsWill/minilangjs). And in fact the best way to follow the walkthrough is to have the full code open to reference it as we go through the steps in building the compiler.
 
 Let's get started then.
 
@@ -58,7 +58,7 @@ Before we get started on discussing and implementing a lexer we need to get our 
 
 Lets create our project directory: `mkdir minilang && cd minilang`
 
-Then make sure that you have [node]() installed. Copy the following `package.json` file.
+Then make sure that you have [node](https://nodejs.org/en/) installed. Copy the following `package.json` file.
 
 ``` json
 {
@@ -121,7 +121,7 @@ module.exports = function(config) {
 
 notice how the files are specified in the test and src direcotries. Lets go ahead and created them.
 
-This particular configuration was stolen verbatim from the excellent book [build your own angular js]().
+This particular configuration was stolen verbatim from the excellent book [build your own angular js](http://teropa.info/build-your-own-angular/).
 
 Now that we are ready to start developing lets discuss the specification of our language.
 
@@ -179,7 +179,9 @@ end
 ```
 ### *The Lexer: That Token Friend*
 
-The theory of lexers is rooted in DFA's and Automata. Think of the way that we can specify an integer and float. An integer is a sequence of numbers, a float is a sequence of numbers followed by a dot then followed by a sequence of numbers. And in fact a lexer can be implemented simply by translating the regular expressions that form the tokens into the implementation of the corresponding DFA. However note that not all constructs are regular and can be specified by regular expressions like C style comments. To match these we would need to do some extra work inside the lexer.
+The theory of lexers is rooted in DFA's and Automata. Think of the way that we can specify an integer and float. An integer is a sequence of numbers, a float is a sequence of numbers followed by a dot then followed by a sequence of numbers. Consider the DFA for a floating point number pictured bellow:
+![floating point dfa]()
+And in fact a lexer can be implemented simply by translating the regular expressions that form the tokens into the implementation of the corresponding DFA. However note that not all constructs are regular and can be specified by regular expressions like C style comments. To match these we would need to do some extra work inside the lexer.
 
 We would like our lexer to return an array of tokens, the parser can use to iterate through. So lets write our first test.
 
@@ -270,4 +272,255 @@ Lexer.prototype.readNumber = function(input){
 module.exports = Lexer;
 ```
 
-The next step is to be able to match floating point numbers.
+The next step is to be able to match floating point numbers. Let's take a similiar strategy and think about the regular expression for a floating point number. A floating point number is a sequence of one or more digits followed by a decimal point followed by zero or more digits i.e \d+.\d*
+
+Note that therefore in minilang we don't allow floating point numbers to start with a decimal point. Lets write the tests to match floating point numbers and disallow numbers that start with a decimal point or that are inproperly formatted.
+
+``` javascript
+it('lexes floating point numbers', function(){
+  var tokens = lexer.lex('20.12');
+  expect(tokens[0]).toEqual({type: Lexer.TOK_FLOAT, value: '20.12'});
+});
+
+it("throws an exception if floats don't start with a digit", function(){
+  expect(function(){lexer.lex('.14');}).toThrow();
+});
+
+it('throws an exception on incorrectly formatted float', function(){
+  expect(function(){lexer.lex('20..12');}).toThrow();
+});
+```
+
+
+Let's write the code to match the regular expresssion and satisfy the tests.
+
+``` javascript
+Lexer.TOK_INT = 1;
+Lexer.TOK_FLOAT = 2;
+
+Lexer.prototype.lex = function(input){
+  var tokens = []
+  this.index = 0;
+  while(this.index < input){
+    var ch = input.charAt(this.index);
+    if(this.isNumber(ch)){
+      var num = this.readNumber(input);
+      if(input[this.index] === '.'){ // now expecting a floating point number
+        num += '.';
+        this.index++;
+        num += this.readNumber(input);
+        tokens.push({type: Lexer.TOK_FLOAT, var: num});
+      }else
+        tokens.push({type: Lexer.TOK_INT, value: num});
+      this.index--;
+    }
+    this.index++;
+  }
+  return tokens;
+}
+```
+
+For an identifier we follow the same process we think of the regular expression, write the tests that match and don't match our regex and then finally write the code to match the regular expression.
+
+Our regular expression is  a sequence of one or more letter or underscore characters followed by a sequence of zero or more digits or characters i.e \w(\d|\w)*
+
+Our tests are:
+
+``` javascript
+it('lexes an identifier', function(){
+  var tokens = lexer.lex('tiger2012');
+  expect(tokens[0]).toEqual({type: Lexer.TOK_ID, value: 'tiger2012'});
+});
+
+it('doensn\'t let identifiers start with a number', function(){
+    var tokens = lexer.lex('2012tiger');
+    expect(tokens[0]).toEqual({type: Lexer.TOK_INT, value: '2012'});
+    expect(tokens[1]).toEqual({type: Lexer.TOK_ID, value: 'tiger'});
+});
+
+it('accepts identifiers with a number in the middle', function(){
+  var tokens = lexer.lex('tiger2012tiger');
+  expect(tokens[0]).toEqual({type: Lexer.TOK_ID, value: 'tiger2012tiger'});
+});
+
+it('throws an exception if identifier has an invalid character', function(){
+  expect(function(){lexer.lex('tiger@tiger');}).toThrow();
+});
+
+it('allows identifiers to use an underscore in any position', function(){
+  var tokens = lexer.lex('_tiger_tiger_');
+  expect(tokens[0]).toEqual({ type: Lexer.TOK_ID, value: '_tiger_tiger_'});
+});
+```
+
+The code to math the regular expresssion uses two auxiliary functions:
+
+* `isIdent` which tells us if a character is a valid identifier
+* `readIdent` which functions like `readNumber` and reads characters until they no longer are a valid identifier character
+
+The code to match the regular expression then becomes:
+
+``` javascript
+
+Lexer.TOK_ID = 3;
+
+  // previous code
+  ...
+
+  else if(this.isIdent(ch)){
+    id = this.readIdent(input);
+    tokens.push({ type: Lexer.TOK_ID, value: id});
+    this.index--;
+  }
+  return tokens;
+}
+
+Lexer.prototype.isIdent = function(ch){
+  return /[a-z0-9_]/i.test(ch);
+};
+
+Lexer.prototype.readIdent = function(input){
+  var id = '';
+  while(this.isNumber(input.charAt(this.index)) || this.isIdent(input.charAt(this.index))){
+    id += input.charAt(this.index);
+    this.index++;
+  }
+  return id;
+};
+```
+
+Some identifiers are special however and are reserved keywords. These are identifiers like `while`, `var`, `if`, `string`, `bool`, `true`, etc.. Therefore when we read an indentifier we check wether it's a reserved keyword if it is we add the token corresponding to the keyword else we just add an identifier token.
+
+The data structure that we use to store the keywords is then a global map from their identifier value to the corresponding token object.
+
+``` javascript
+var KEYWORDS =  {
+  'while' : { type: Lexer.TOK_WHILE,  value: 'while'},
+  'for'   : { type: Lexer.TOK_FOR,    value: 'for'},
+  'end'   : { type: Lexer.TOK_END,    value: 'end'},
+  'do'    : { type: Lexer.TOK_DO,     value: 'do'},
+  'int'   : { type: Lexer.TOK_TYPE,   value: 'int'},
+  'float' : { type: Lexer.TOK_TYPE,   value: 'float'},
+  'string': { type: Lexer.TOK_TYPE,   value: 'string'},
+  'bool'  : { type: Lexer.TOK_TYPE,   value: 'bool'},
+  'if'    : { type: Lexer.TOK_IF,     value: 'if'},
+  'else'  : { type: Lexer.TOK_ELSE,   value: 'else'},
+  'true'  : { type: Lexer.TOK_BOOL,   value: 'true'},
+  'false' : { type: Lexer.TOK_BOOL,   value: 'false'},
+  'var'   : { type: Lexer.TOK_VAR,    value: 'var'},
+  'func'  : { type: Lexer.TOK_FUNC,   value: 'func'},
+  'print' : { type: Lexer.TOK_PRINT,  value: 'print'}
+};
+
+```
+
+Lets write the test that ensure that we properly lex reserved keywords:
+
+``` javascript
+it('properly lexes identifiers that are key words', function(){
+  var tokens = lexer.lex('while');
+  expect(tokens[0]).toEqual({ type: Lexer.TOK_WHILE, value : 'while'});
+});
+
+```
+
+Finally we modify the identifier code:
+
+``` javascript
+else if(this.isIdent(ch)){
+  id = this.readIdent(input);
+  if(KEYWORDS.hasOwnProperty(id)) //check if identifier is a key word
+    tokens.push({ type: KEYWORDS[id].type, value: KEYWORDS[id].value});
+  else
+    tokens.push({ type: Lexer.TOK_ID, value: id});
+  this.index--;
+}
+```
+
+We can add the following tests to ensure robustness of our identifiers when we extend the compiler.
+
+``` javascript
+it('doensn\'t let identifiers start with a number', function(){
+  var tokens = lexer.lex('2012tiger');
+  expect(tokens[0]).toEqual({type: Lexer.TOK_INT, value: '2012'});
+  expect(tokens[1]).toEqual({type: Lexer.TOK_ID, value: 'tiger'});
+});
+
+it('accepts identifiers with a number in the middle', function(){
+  var tokens = lexer.lex('tiger2012tiger');
+  expect(tokens[0]).toEqual({type: Lexer.TOK_ID, value: 'tiger2012tiger'});
+});
+
+it('throws an exception if identifier has an invalid character', function(){
+  expect(function(){lexer.lex('tiger@tiger');}).toThrow();
+});
+
+it('allows identifiers to use an underscore in any position', function(){
+  var tokens = lexer.lex('_tiger_tiger_');
+  expect(tokens[0]).toEqual({ type: Lexer.TOK_ID, value: '_tiger_tiger_'});
+});
+```
+
+After identifiers the next logical question is what about strings? We take the usual approach and build a simple string lexer by considering first the regular expression that would match a string.
+In this case the regex is quite simple being a quote followed by any number of characters followed by a closing quote. We keep strings in our language simple and don't consider string escaping though it isn't particularly challenging and would be a useful exercise.
+
+We implement the following tests to ensure that we lex strings:
+
+``` javascript
+it('lexes string literals with double quotes', function(){
+  var tokens = lexer.lex('"tiger"');
+  expect(tokens[0]).toEqual({ type: Lexer.TOK_STRING, value: "'tiger'"});
+});
+
+it('lexes string literals with single quotes', function(){
+  var tokens = lexer.lex("'tiger'");
+  expect(tokens[0]).toEqual({ type: Lexer.TOK_STRING, value: "'tiger'"});
+});
+
+it('can lex strings with special characters in them', function(){
+  var tokens = lexer.lex("'$hell@ ^there *world*!'");
+  expect(tokens[0]).toEqual({type: Lexer.TOK_STRING, value: "'$hell@ ^there *world*!'"});
+});
+```
+
+What happens if we have a mismatched quote? If we detect such a situation we throw an exception and stop the lexing process, lets add the test.
+
+``` javascript
+it('throws error on a strings mismatched quotes', function(){
+  expect(function(){lexer.lex("tiger'");}).toThrow();
+});
+```
+
+The implementation is similiar to read ident except we have to keep track of the quotes. When we see a quote we advance the token and start reading the string, this is equivalent to a going from one state to another in a DFA that matches strings. Then we need to read the string until we hit the matching quote, when we hit the matching quote we return the string if no matching quote is found then we throw and exception, this is the equivalent of the DFA accepting or rejecting an input respectively. The implementation looks like this:
+
+``` javascript
+Lexer.TOK_STRING
+
+Lexer.prototype.lex = function(e){
+  // previous code
+  ...
+  else if(ch === '"' || ch === "'"){
+    var quote = ch;
+    this.index++;
+    id = this.readString(input, quote);
+    if(input.charAt(this.index) === quote)
+      tokens.push({ type: Lexer.TOK_STRING, value: "'" + id + "'"});
+    else
+      throw new Error("Unmatched quote");
+  }
+}
+```
+The `readString` function is similar to the `readIdent` function, and it's equivalent to a DFA that says match anything until we run out of input or hit a matching quote. Let's implement it:
+
+``` javascript
+Lexer.prototype.readString = function(input, quote){
+  var string = '';
+  while(input.charAt(this.index) !== quote && this.index < input.length){
+    string += input.charAt(this.index);
+    this.index++;
+  }
+  return string;
+}
+```
+
+Finally all we have to do is check if the final quote matches and push the token or reject and throw an error.
