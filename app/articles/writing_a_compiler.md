@@ -180,10 +180,33 @@ end
 ### *The Lexer: That Token Friend*
 
 The theory of lexers is rooted in DFA's and Automata. Think of the way that we can specify an integer and float. An integer is a sequence of numbers, a float is a sequence of numbers followed by a dot then followed by a sequence of numbers. Consider the DFA for a floating point number pictured bellow:
-![floating point dfa]()
-And in fact a lexer can be implemented simply by translating the regular expressions that form the tokens into the implementation of the corresponding DFA. However note that not all constructs are regular and can be specified by regular expressions like C style comments. To match these we would need to do some extra work inside the lexer.
 
-We would like our lexer to return an array of tokens, the parser can use to iterate through. So lets write our first test.
+<img src="https://raw.githubusercontent.com/itsWill/Blog/writing_a_compiler_in_js/app/articles/images/float_dfa.png" style="display:block;margin-left:auto;margin-right:auto">
+
+In pseudocode we might implement such a dfa likes this:
+
+`readNumber` is a function that reads the characters in the input and advances the index pointer until it hits a character that is not a number.
+
+```
+index = 0
+num = ""
+ch = input.charAt(0
+if isNumber(ch) do
+  num = readNumber(input, index) // state 1
+  if input.charAt(index) == . do
+    readNumber(input, index) // accept state
+    return num
+  else
+    return false // reject
+end
+return false
+```
+
+By mapping the DFA we're able to extract the part of the input that is a floating point number. This is basically how a lexer works. We specify regular expressions that represent the tokens in our lanaguage then build the DFA's and map them to code in which we extract tokens from the input. In this case the input is the text of the program. However note that not all constructs are regular and can be specified by regular expressions like C style comments. To match these we would need to do some extra work inside the lexer by using a stack and using the more powerful theory of deterministic pushdown automata.
+
+With an understanding of the theory behind lexers let's think of the implementation of our lexer.
+
+We would like our lexer to return an array of tokens the parser can use to iterate through. So lets write our first test.
 
 ``` javascript
 (function(){'use strict';}());
@@ -524,3 +547,95 @@ Lexer.prototype.readString = function(input, quote){
 ```
 
 Finally all we have to do is check if the final quote matches and push the token or reject and throw an error.
+
+This is the bulk part of the lexer, we now have to write for the simple case of lexing reserved characters, let's write the following test then:
+
+```javascript
+it('properly lexes reserved characters', function(){
+  var lexed = [];
+  lexed.push({ type: Lexer.TOK_LPAREN, value: '('});
+  lexed.push({ type: Lexer.TOK_RPAREN, value: ')'});
+  lexed.push({ type: Lexer.TOK_PLUS, value: '+'});
+  lexed.push({ type: Lexer.TOK_MINUS, value: '-'});
+  lexed.push({ type: Lexer.TOK_STAR, value: '*'});
+  lexed.push({ type: Lexer.TOK_SLASH, value: '/'});
+  lexed.push({ type: Lexer.TOK_COLON, value: ':'});
+  lexed.push({ type: Lexer.TOK_SEMI, value: ';'});
+
+  var tokens = lexer.lex('()+-*/:;');
+
+  expect(tokens).toEqual(lexed);
+});
+```
+
+The implementation is straightforward we simply spit out the characters as tokens.
+
+``` javascript
+else if (ch === '(')
+  tokens.push({ type: Lexer.TOK_LPAREN, value: '('});
+else if (ch === ')')
+  tokens.push({ type: Lexer.TOK_RPAREN, value: ')'});
+else if (ch === '+')
+  tokens.push({ type: Lexer.TOK_PLUS, value: '+'});
+else if (ch === '-')
+  tokens.push({ type: Lexer.TOK_MINUS, value: '-'});
+else if (ch === '*')
+  tokens.push({ type: Lexer.TOK_STAR, value: '*'});
+else if (ch === '/')
+  tokens.push({ type: Lexer.TOK_SLASH, value: '/'});
+else if (ch === '%')
+  tokens.push({ type: Lexer.TOK_MOD, value: '%'});
+else if( ch === ':')
+  tokens.push({ type: Lexer.TOK_COLON, value: ':'});
+else if( ch === ';')
+  tokens.push({ type: Lexer.TOK_SEMI, value: ';'});
+else if( ch === ']')
+  tokens.push({ type: Lexer.TOK_RBRACKET, value: ']'});
+else if( ch === '[')
+  tokens.push({ type: Lexer.TOK_LBRACKET, value: '['});
+else if( ch === ',')
+  tokens.push({ type: Lexer.TOK_COMMA, value: ','});
+```
+
+We need to take special care of tokens like `==` by employing a lookahead. Which means once we read in a `=` we check if the next input is a `=` if it is then we know we have an equality check token and not an assign token. This makes more sense once we se the code:
+
+```javascript
+else if(ch === "="){
+  if(this.peek(input) === "="){
+    this.index++;
+    tokens.push({ type: Lexer.TOK_EQLS, value: "=="});
+  }
+  else
+    tokens.push({ type: Lexer.TOK_EQ, value: "="});
+}
+else if(ch === ">"){
+  if(this.peek(input) === "="){
+    this.index++;
+    tokens.push({ type: Lexer.TOK_GTHANEQ, value: ">="});
+  }
+  else
+    tokens.push({ type: Lexer.TOK_GTHAN, value: ">"});
+}
+else if(ch === "<"){
+  if(this.peek(input) === "="){
+    this.index++;
+    tokens.push({ type: Lexer.TOK_LTHANEQ, value: "<="});
+  }
+  else
+    tokens.push({ type: Lexer.TOK_LTHAN, value: "<"});
+}
+```
+
+This should be enough to understand the code for the lexer of the compiler, which again one can find [here](https://github.com/itsWill/minilangjs).
+
+There are a couple of extensions that come to mind for the compiler that we now have the knowhow to implement and are left as exercises to the reader (don't forget to write the tests first):
+
+#### Exercises
+
+1. Implement string escaping for special characters \t, \n, \', \" and unicode.
+2. Implement new tokens like a `func` reserved token for function declarations.
+3. Give tokens line numbers so we can give better error messages.
+
+Next up we're going to discuss parsing and do the code walkthrough for the recursive descent parsers minilang implements.
+
+#### **To Be Continued ....**
