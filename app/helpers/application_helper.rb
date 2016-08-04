@@ -27,7 +27,6 @@ module ApplicationHelper
     }
 
     options = {
-      filter_html: false,
       prettify:    true
     }
 
