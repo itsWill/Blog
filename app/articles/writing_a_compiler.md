@@ -4,9 +4,9 @@ description: A  compiler for a small language written in a 1k lines of javascrip
 
 ### **Introduction**
 
-Writing a compiler has become almost a rite of passage in the programming world  and with good reason. A full compiler is a tough and lengthy project that brings together a plethora of topics from the field of computer science. This however is what makes it one of the most rewarding things a programmer can do. Design and implementing your own language brings a feeling of understanding the computer and demistifiying programming in the same way learning about hardware and cpus for the first time does. It brings us closer to the machine.
+Writing a compiler has become almost a rite of passage in the programming world  and with good reason. A full compiler is a tough and lengthy project that brings together a plethora of topics from the field of computer science. This however is what makes it one of the most rewarding things a programmer can do. Designing and implementing your own language brings the same feeling of understanding the computer and demistifiying programming in the same way learning about hardware and cpus for the first time does. It brings us closer to the machine.
 
-The aim of this compiler however is not to create a full compiler for a complete language that can perform the complex computations and patterns we use today, wether they be functional or object oriented. This compiler is for a simple language that has only a couple of the usual programming constructs but goes through all the steps in the compilation process:
+The aim of this compiler however is not to create a full compiler for a complete language that can perform the complex computations and patterns we use today, whether they be functional or object oriented. This compiler is for a simple language that has only a couple of the usual programming constructs but goes through all the steps in the compilation process:
 
 * Lexing
 * Parsing
@@ -16,13 +16,13 @@ The aim of this compiler however is not to create a full compiler for a complete
 
 The aim is simplicity and as such we try to keep the implementation under 1k lines of javascript. The decision to write the compiler in javascript is purely selfish and because I wanted to practice writing javascript but familiarize myself with the node environment. So here is a disclaimer that I'm a biggenner at javascript, still getting familiar with the language and its quirks. So take the code here with a healthy dosage of salt and forgive me for any bad code, I swear it was not intentional.
 
-However a basic familiarity with the node environment and javascript is assumed so we won't go into explaining the proporties of the language and the environment to much, this is to keep the tutorial shorter.
+However a basic familiarity with the node environment and javascript is assumed so we won't go into explaining the properties of the language and the environment to much, this is to keep the tutorial shorter.
 
 The real value of this article will be in the discussion about the compilation ideas we implement the language, as well as in the final product. Having the developed a compiler for a language we can then extend the compiler and explore new areas of language design. I aim to give the know how and tools to do exactly that.
 
-We will be developing the compiler using TDD and building a test suite right along the compiler, this will allow you to have more confidence when you extend the compiler that it's still working as inteded.
+We will be developing the compiler using TDD and building a test suite right along the compiler, this will allow you to have more confidence when you extend the compiler that it's still working as intended.
 
-Oh and finally I'm moving to a new place and need to decorate the walls. I figured I would write the oldest algorithm euclid's gcd algorithm in our new language and print its ast and generated code to frame as some type of programmer compiler-nerd art.
+Oh and finally I'm moving to a new place and need to decorate the walls. I figured I would write the oldest algorithm Euclid's gcd algorithm in our new language and print its ast and generated code to frame as some type of programmer compiler-nerd art.
 
 The full code for the compiler can be found [here](https://github.com/itsWill/minilangjs). And in fact the best way to follow the walkthrough is to have the full code open to reference it as we go through the steps in building the compiler.
 
@@ -36,13 +36,13 @@ If you look at a program you will see that it's text is composed of various unit
 
 #### **Parsing**
 
-The lexer which will extract the tokens will feed them to the parser. The parser's responsibility is to make sure that the program is syntatically valid. Specifically we mean that given a grammar for a language the program is a valid member of that grammar. We will get more into the meaning of this when we dwelve into the parser section.
+The lexer which will extract the tokens will feed them to the parser. The parser's responsibility is to make sure that the program is syntactically valid. Specifically we mean that given a grammar for a language the program is a valid member of that grammar. We will get more into the meaning of this when we dwelve into the parser section.
 
-As the parser checks that a program is syntatically valid it will also build a tree where the syntax of the program is represented called the abstract syntax tree. The abstract syntax tree is the data structure that the compiler will then use to analyze our program.
+As the parser checks that a program is syntactically valid it will also build a tree where the syntax of the program is represented called the abstract syntax tree. The abstract syntax tree is the data structure that the compiler will then use to analyze our program.
 
 #### **Symbol Table**
 
-One of the analysis it will perform comes when it builds the symbol table, which handles the declaration of symbols and scoping. The symbol table will store all the variable names that we declare and any realated information including in which scope they belong too.
+One of the analysis it will perform comes when it builds the symbol table, which handles the declaration of symbols and scoping. The symbol table will store all the variable names that we declare and any related information including in which scope they belong too.
 
 #### **Type Checker**
 
@@ -50,7 +50,7 @@ Using the symbol table the compiler will type check, meaning it will make sure t
 
 #### **Code Generation**
 
-After a program is checked and is valid the compiler will traverse the ast generating the *target* code. The target code is just what language the compiler compiles too, wether that's C or assembly, or any other representation like a QR Code, or even a picture like the [insert language here]. In this case our target code is javascript.
+After a program is checked and is valid the compiler will traverse the ast generating the *target* code. The target code is just what language the compiler compiles too, whether that's C or assembly, or any other representation like a QR Code, or even a picture like the [piet](https://en.wikipedia.org/wiki/Esoteric_programming_language#Piet) programming language. In this case our target code is javascript.
 
 ### Setup
 
@@ -119,7 +119,7 @@ module.exports = function(config) {
 };
 ```
 
-notice how the files are specified in the test and src direcotries. Lets go ahead and created them.
+notice how the files are specified in the test and src directories. Lets go ahead and created them.
 
 This particular configuration was stolen verbatim from the excellent book [build your own angular js](http://teropa.info/build-your-own-angular/).
 
@@ -202,7 +202,7 @@ end
 return false
 ```
 
-By mapping the DFA we're able to extract the part of the input that is a floating point number. This is basically how a lexer works. We specify regular expressions that represent the tokens in our lanaguage then build the DFA's and map them to code in which we extract tokens from the input. In this case the input is the text of the program. However note that not all constructs are regular and can be specified by regular expressions like C style comments. To match these we would need to do some extra work inside the lexer by using a stack and using the more powerful theory of deterministic pushdown automata.
+By mapping the DFA we're able to extract the part of the input that is a floating point number. This is basically how a lexer works. We specify regular expressions that represent the tokens in our language then build the DFA's and map them to code in which we extract tokens from the input. In this case the input is the text of the program. However note that not all constructs are regular and can be specified by regular expressions like C style comments. To match these we would need to do some extra work inside the lexer by using a stack and using the more powerful theory of deterministic pushdown automata.
 
 With an understanding of the theory behind lexers let's think of the implementation of our lexer.
 
@@ -295,9 +295,9 @@ Lexer.prototype.readNumber = function(input){
 module.exports = Lexer;
 ```
 
-The next step is to be able to match floating point numbers. Let's take a similiar strategy and think about the regular expression for a floating point number. A floating point number is a sequence of one or more digits followed by a decimal point followed by zero or more digits i.e \d+.\d*
+The next step is to be able to match floating point numbers. Let's take a similar strategy and think about the regular expression for a floating point number. A floating point number is a sequence of one or more digits followed by a decimal point followed by zero or more digits i.e \d+.\d*
 
-Note that therefore in minilang we don't allow floating point numbers to start with a decimal point. Lets write the tests to match floating point numbers and disallow numbers that start with a decimal point or that are inproperly formatted.
+Note that therefore in minilang we don't allow floating point numbers to start with a decimal point. Lets write the tests to match floating point numbers and disallow numbers that start with a decimal point or that are improperly formatted.
 
 ``` javascript
 it('lexes floating point numbers', function(){
@@ -315,7 +315,7 @@ it('throws an exception on incorrectly formatted float', function(){
 ```
 
 
-Let's write the code to match the regular expresssion and satisfy the tests.
+Let's write the code to match the regular expression and satisfy the tests.
 
 ``` javascript
 Lexer.TOK_INT = 1;
@@ -376,7 +376,7 @@ it('allows identifiers to use an underscore in any position', function(){
 });
 ```
 
-The code to math the regular expresssion uses two auxiliary functions:
+The code to math the regular expression uses two auxiliary functions:
 
 * `isIdent` which tells us if a character is a valid identifier
 * `readIdent` which functions like `readNumber` and reads characters until they no longer are a valid identifier character
@@ -412,7 +412,7 @@ Lexer.prototype.readIdent = function(input){
 };
 ```
 
-Some identifiers are special however and are reserved keywords. These are identifiers like `while`, `var`, `if`, `string`, `bool`, `true`, etc.. Therefore when we read an indentifier we check wether it's a reserved keyword if it is we add the token corresponding to the keyword else we just add an identifier token.
+Some identifiers are special however and are reserved keywords. These are identifiers like `while`, `var`, `if`, `string`, `bool`, `true`, etc.. Therefore when we read an identifier we check whether it's a reserved keyword if it is we add the token corresponding to the keyword else we just add an identifier token.
 
 The data structure that we use to store the keywords is then a global map from their identifier value to the corresponding token object.
 
@@ -514,7 +514,7 @@ it('throws error on a strings mismatched quotes', function(){
 });
 ```
 
-The implementation is similiar to read ident except we have to keep track of the quotes. When we see a quote we advance the token and start reading the string, this is equivalent to a going from one state to another in a DFA that matches strings. Then we need to read the string until we hit the matching quote, when we hit the matching quote we return the string if no matching quote is found then we throw and exception, this is the equivalent of the DFA accepting or rejecting an input respectively. The implementation looks like this:
+The implementation is similar to read ident except we have to keep track of the quotes. When we see a quote we advance the token and start reading the string, this is equivalent to a going from one state to another in a DFA that matches strings. Then we need to read the string until we hit the matching quote, when we hit the matching quote we return the string if no matching quote is found then we throw and exception, this is the equivalent of the DFA accepting or rejecting an input respectively. The implementation looks like this:
 
 ``` javascript
 Lexer.TOK_STRING
@@ -597,7 +597,7 @@ else if( ch === ',')
   tokens.push({ type: Lexer.TOK_COMMA, value: ','});
 ```
 
-We need to take special care of tokens like `==` by employing a lookahead. Which means once we read in a `=` we check if the next input is a `=` if it is then we know we have an equality check token and not an assign token. This makes more sense once we se the code:
+We need to take special care of tokens like `==` by employing a lookahead. Which means once we read in a `=` we check if the next input is a `=` if it is then we know we have an equality check token and not an assign token. This makes more sense once we see the code:
 
 ```javascript
 else if(ch === "="){
