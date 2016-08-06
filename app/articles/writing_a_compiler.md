@@ -4,7 +4,7 @@ description: A  compiler for a small language written in a 1k lines of javascrip
 
 ### **Introduction**
 
-Writing a compiler has become almost a rite of passage in the programming world  and with good reason. A full compiler is a tough and lengthy project that brings together a plethora of topics from the field of computer science. This however is what makes it one of the most rewarding things a programmer can do. Designing and implementing your own language brings the same feeling of understanding the computer and demistifiying programming in the same way learning about hardware and cpus for the first time does. It brings us closer to the machine.
+Writing a compiler has become almost a rite of passage in the programming world  and with good reason. A full compiler is a tough and lengthy project that brings together a plethora of topics from the field of computer science. This however is what makes it one of the most rewarding things a programmer can do. Designing and implementing your own language brings the same feeling of understanding the computer and demistifiying programming that learning about hardware and cpus for the first time does. It brings us closer to the machine.
 
 The aim of this compiler however is not to create a full compiler for a complete language that can perform the complex computations and patterns we use today, whether they be functional or object oriented. This compiler is for a simple language that has only a couple of the usual programming constructs but goes through all the steps in the compilation process:
 
@@ -14,11 +14,11 @@ The aim of this compiler however is not to create a full compiler for a complete
 * Type checking
 * Code generation
 
-The aim is simplicity and as such we try to keep the implementation under 1k lines of javascript. The decision to write the compiler in javascript is purely selfish and because I wanted to practice writing javascript but familiarize myself with the node environment. So here is a disclaimer that I'm a biggenner at javascript, still getting familiar with the language and its quirks. So take the code here with a healthy dosage of salt and forgive me for any bad code, I swear it was not intentional.
+The aim is simplicity and as such we try to keep the implementation under 1k lines of javascript. The decision to write the compiler in javascript is purely selfish a) because I wanted to practice writing javascript and b) familiarize myself with the node environment. So here is a disclaimer that I'm a biggenner at javascript, still getting familiar with the language and its quirks. So take the code here with a healthy dosage of salt and forgive me for any bad code, I swear it was not intentional.
 
 However a basic familiarity with the node environment and javascript is assumed so we won't go into explaining the properties of the language and the environment to much, this is to keep the tutorial shorter.
 
-The real value of this article will be in the discussion about the compilation ideas we implement the language, as well as in the final product. Having the developed a compiler for a language we can then extend the compiler and explore new areas of language design. I aim to give the know how and tools to do exactly that.
+The real value of this article will be in the discussion about the compilation ideas as we implement the language, as well as in the final product. Having the developed a compiler for a language we can then extend the compiler and explore new areas of language design. I aim to give the know how and tools to do exactly that.
 
 We will be developing the compiler using TDD and building a test suite right along the compiler, this will allow you to have more confidence when you extend the compiler that it's still working as intended.
 
@@ -202,7 +202,7 @@ end
 return false
 ```
 
-By mapping the DFA we're able to extract the part of the input that is a floating point number. This is basically how a lexer works. We specify regular expressions that represent the tokens in our language then build the DFA's and map them to code in which we extract tokens from the input. In this case the input is the text of the program. However note that not all constructs are regular and can be specified by regular expressions like C style comments. To match these we would need to do some extra work inside the lexer by using a stack and using the more powerful theory of deterministic pushdown automata.
+By mapping the DFA we're able to extract the part of the input that is a floating point number. This is basically how a lexer works. We specify regular expressions that represent the tokens in our language then build the DFA's and map them to code in which we extract tokens from the input. In this case the input is the text of the program. However note that not all constructs are regular and can be specified by regular expressions for example C style comments. To match these we would need to do some extra work inside the lexer by using a stack and using the more powerful theory of deterministic pushdown automata.
 
 With an understanding of the theory behind lexers let's think of the implementation of our lexer.
 
